@@ -5,7 +5,6 @@ const wordBank =["bears", "bengals", "bills","broncos", "browns","cardinals", "c
 "lions", "packers","panthers", "patriots", "raiders", "rams", "ravens", "redskins","saints","seahawks","steelers", "buccaneers", "texans", "titans","vikings"];
 
 
-
 let guesses;
 let pickedWords;
 let word;
@@ -14,7 +13,7 @@ let pickedWord;
 function begin() {
   pickedWords = [];
   console.log("================================");
-  console.log("CAN YOU GUESS THE NFL TEAM NAME?");
+  console.log("CAN YOU GUESS THE NFL TEAM NAME");
   // console.log("(not the cities/states)");
   console.log("================================");
   playGame();
@@ -52,7 +51,7 @@ function makeGuess() {
     {
       name: "guessedLetter",
       message: word.update() + 
-              "\nGuess a letter" +
+              "\nGuess a letter!" +
               "\nGuesses Left: " + guesses
     }
   ])
@@ -72,7 +71,7 @@ function makeGuess() {
     } else {
       console.log("YOU KNOW YOUR NFL TEAMS!! CONGRATS!!");
       console.log(word.update());
-      playGame();
+      continuePrompt();
     }
   });
 }
