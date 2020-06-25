@@ -1,65 +1,98 @@
-// Load the NPM Package inquirer
-var inquirer = require("inquirer");
+const Word = require("./word.js");
+const inquirer = require("inquirer");
 
-// Created a series of questions
-inquirer.prompt([
+const wordBank =["bears", "bengals", "bills","broncos", "browns","cardinals", "chargers", "chiefs", "colts","cowboys", "dolphins", "eagles", "falcons", "fortyniners","giants", "jaguars", "jets",
+"lions", "packers","panthers", "patriots", "raiders", "rams", "ravens", "redskins","saints","seahawks","steelers", "buccaneers", "texans", "titans","vikings"];
 
-  {
-    type: "input",
-    name: "name",
-    message: "Who are you???"
-  },
 
-  {
-    type: "list",
-    name: "doingWhat",
-    message: "What are you doing in my house??",
-    choices: ["I made you cookies!", "No lie dude. I'm here to rob you.", "Uh. This is my house... Who are YOU???"]
-  },
 
-  {
-    type: "checkbox",
-    name: "carryingWhat",
-    message: "What are you carrying in your hands??",
-    choices: ["TV", "Slice of Toast", "Butter Knife"]
-  },
+let guesses;
+let pickedWords;
+let word;
+let pickedWord;
 
-  {
-    type: "confirm",
-    name: "canLeave",
-    message: "Can you leave now?"
-  },
+function begin() {
+  pickedWords = [];
+  console.log("================================");
+  console.log("CAN YOU GUESS THE NFL TEAM NAME?");
+  // console.log("(not the cities/states)");
+  console.log("================================");
+  playGame();
+}
 
-  {
-    type: "password",
-    name: "myPassword",
-    message: "Okay fine. You can stay. But only if you say the magic password."
+function playGame() {
+  pickedWord = "";
+  guesses = 15;
+  if(pickedWords.length < wordBank.length) {
+    pickedWord = getWord();
+  } else {
+    continuePrompt();
   }
-
-]).then(function(user) {
-
-  // If the user guesses the password...
-  if (user.myPassword === "myHouse") {
-
-    console.log("==============================================");
-    console.log("");
-    console.log("Well a deal's a deal " + user.name);
-    console.log("You can stay as long as you like.");
-    console.log("Just put down the " + user.carryingWhat.join(" and ") + ". It's kind of freaking me out.");
-    console.log("");
-    console.log("==============================================");
+  if(pickedWord) {
+    word = new Word(pickedWord);
+    word.makeLetters();
+    makeGuess();
   }
+}
 
-
-  // If the user doesn't guess the password...
-  else {
-
-    console.log("==============================================");
-    console.log("");
-    console.log("Sorry " + user.name);
-    console.log("I'm calling the cops!");
-    console.log("");
-    console.log("==============================================");
-
+function getWord() {
+  let rand = Math.floor(Math.random() * wordBank.length);
+  let randomWord = wordBank[rand];
+  if(pickedWords.indexOf(randomWord) === -1) {
+    pickedWords.push(randomWord);
+    return randomWord;
+  } else {
+    return getWord();
   }
-});
+}
+
+function makeGuess() {
+  let checker = [];
+  inquirer.prompt([
+    {
+      name: "guessedLetter",
+      message: word.update() + 
+              "\nGuess a letter" +
+              "\nGuesses Left: " + guesses
+    }
+  ])
+  .then(data => {
+    word.letters.forEach(letter => {
+      letter.checkLetter(data.guessedLetter);
+      checker.push(letter.getLetter());
+    });
+    if(guesses > 0 && checker.indexOf("_") !== -1) {
+      guesses--;
+      if(guesses === 0) {
+        console.log("OUT OF GUESSES! YOU LOSE");
+        continuePrompt();
+      } else {
+        makeGuess();
+      }
+    } else {
+      console.log("YOU KNOW YOUR NFL TEAMS!! CONGRATS!!");
+      console.log(word.update());
+      playGame();
+    }
+  });
+}
+
+function continuePrompt() {
+  inquirer.prompt([
+      {
+        name: "continue",
+        type: "list",
+        message: "Play again?",
+        choices: ["Yes", "No"]
+      }
+    ])
+  .then(data => {
+      if(data.continue === "Yes") {
+        begin();
+      } else {
+        console.log("Thanks for playing!!");
+      }
+  });
+}
+
+begin();
